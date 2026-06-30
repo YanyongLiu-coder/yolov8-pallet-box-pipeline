@@ -1,0 +1,54 @@
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Secrets and local-only config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Private datasets and generated annotations/images
+pallet_box_yolov8/datasets/**/images/
+pallet_box_yolov8/datasets/**/labels/
+**/labelme_raw/
+**/raw_data/
+
+# Training, prediction, benchmark, and exported model artifacts
+pallet_box_yolov8/runs/
+yolo_trt_cpp_lab/models/
+yolo_trt_cpp_lab/outputs/
+*.pt
+*.pth
+*.onnx
+*.engine
+*.plan
+*.trt
+*.weights
+*.tar
+*.tar.gz
+*.zip
+benchmark_results.json
+
+# Build artifacts
+build/
+cmake-build-*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
