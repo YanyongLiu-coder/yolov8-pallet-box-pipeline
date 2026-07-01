@@ -1,0 +1,46 @@
+# Dockerfile for Jetson Orin (JetPack 6.x / L4T r36.x)
+#
+# Build on Jetson device or cross-compile with NVIDIA SDK Manager.
+# JetPack 6 includes: TensorRT 8.6+, CUDA 12.2, cuDNN 8.9
+#
+# Usage:
+#   docker build -f Dockerfile.jetson -t yolo-int8-jetson .
+#   docker run --runtime nvidia -p 8002:8002 \
+#     -v /path/to/models:/workspace/yolo_int8_jetson/models \
+#     yolo-int8-jetson
+
+FROM nvcr.io/nvidia/l4t-tensorrt:r36.3.0-runtime
+
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /workspace/yolo_int8_jetson
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    pkg-config \
+    libopencv-dev \
+    python3-pip \
+    python3-dev \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir numpy opencv-python-headless pycuda
+
+# Copy source
+COPY cpp/ cpp/
+COPY assets/ assets/
+COPY scripts/ scripts/
+
+# Download header-only libraries and build
+RUN mkdir -p cpp/third_party/nlohmann && \
+    wget -q -O cpp/third_party/httplib.h \
+      https://raw.githubusercontent.com/yhirose/cpp-httplib/v0.15.3/httplib.h && \
+    wget -q -O cpp/third_party/nlohmann/json.hpp \
+      https://raw.githubusercontent.com/nlohmann/json/v3.11.3/single_include/nlohmann/json.hpp && \
+    cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build build -j$(nproc)
+
+EXPOSE 8002
+
+CMD ["./build/yolo_trt_server", "--engine", "models/best.int8.engine", "--port", "8002"]

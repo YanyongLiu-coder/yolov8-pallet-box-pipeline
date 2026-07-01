@@ -110,7 +110,6 @@ Response format:
 ## One-Command Docker Deployment (HTTP Server)
 
 ```bash
-# Start the server after building the engine
 docker run -d --name yolo-trt-server \
   --gpus device=0 -p 8002:8002 \
   -v /home/localadmin/build/yolo_trt_cpp_lab:/workspace/yolo_trt_cpp_lab \
@@ -136,7 +135,7 @@ Why TensorRT outperforms PyTorch:
 - FP16 precision doubles throughput on A6000
 - No Python GIL, no framework dispatch overhead
 
-## Relationship with pallet_box_yolov8
+## Relationship with Other Projects
 
 ```
 pallet_box_yolov8/              <- Training + data preparation
@@ -144,8 +143,15 @@ pallet_box_yolov8/              <- Training + data preparation
         ├── best.pt             <- Original PyTorch weights
         └── best.onnx           <- Exported ONNX model
 
-yolo_trt_cpp_lab/               <- Deployment + high-performance inference
+yolo_trt_cpp_lab/               <- FP16 TensorRT deployment
   └── models/
         ├── best.onnx           <- Mounted from above
-        └── best.fp16.engine    <- TensorRT compiled artifact
+        └── best.fp16.engine    <- TensorRT FP16 engine
+
+yolo_int8_jetson/               <- INT8 quantization + Jetson Orin deployment
+  └── models/
+        ├── calibration.cache   <- INT8 calibration data
+        └── best.int8.engine    <- TensorRT INT8 engine (smallest, fastest)
 ```
+
+For INT8 quantization and Jetson Orin deployment, see [../yolo_int8_jetson/README.md](../yolo_int8_jetson/README.md).
